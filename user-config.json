@@ -1,0 +1,10 @@
+{
+  "interfaceTone": "sacred-minimal",
+  "programmerPanelDefaultOpen": true,
+  "professorPanelDefaultOpen": true,
+  "pearlCardDensity": "standard",
+  "themeToggleEnabled": false,
+  "themeToggleShortcut": null,
+  "themeToggleDisplay": "text",
+  "colorModeDefault": "light"
+}

@@ -1,4 +1,4 @@
-import type React from "react";
+import { SacredButton, SacredField } from "@/components/sacred/Sacred";
 import { createId } from "@/lib/pearls/store";
 import { parseTags } from "@/lib/pearls/format";
 import {
@@ -74,63 +74,66 @@ export function PearlForm({
 
   return (
     <form
-      className="rounded-[2rem] border border-stone-200 bg-white p-6 shadow-sm"
+      className="sacred-form"
       onSubmit={(event) => {
         event.preventDefault();
         onSave();
       }}
     >
-      <div className="flex flex-col gap-4 border-b border-stone-200 pb-6 md:flex-row md:items-center md:justify-between">
-        <div>
-          <p className="text-xs uppercase tracking-[0.3em] text-stone-500">
-            Pearl Editor
-          </p>
-          <h2 className="mt-2 text-3xl font-semibold tracking-tight">
-            Shape the encounter
-          </h2>
-        </div>
-        <div className="flex gap-2">
-          <button
-            className="rounded-full border border-stone-300 px-4 py-2 text-sm font-medium text-stone-700"
-            onClick={onCancel}
-            type="button"
-          >
+      <div className="sacred-form__header">
+        <h2>Shape the encounter</h2>
+        <div className="sacred-form__actions">
+          <SacredButton onClick={onCancel} tone="ghost" type="button">
             Cancel
-          </button>
-          <button
-            className="rounded-full bg-stone-950 px-4 py-2 text-sm font-medium text-white"
-            type="submit"
-          >
+          </SacredButton>
+          <SacredButton tone="primary" type="submit">
             Save Pearl
-          </button>
+          </SacredButton>
         </div>
       </div>
 
-      <div className="grid gap-4 py-6 md:grid-cols-2">
-        <Field label="Title">
+      <div className="sacred-form__body">
+      <div className="sacred-form__grid">
+        <SacredField label="Title">
           <input
-            className="input"
+            className="sacred-input"
             onChange={(event) => updateEnvelope({ title: event.currentTarget.value })}
             placeholder="Duchamp Readymades at MoMA"
             required
             value={draft.envelope.title}
           />
-        </Field>
-        <Field label="Source URL or location">
+        </SacredField>
+        <SacredField label="Source URL or location">
           <input
-            className="input"
+            className="sacred-input"
             onChange={(event) => updateEnvelope({ source: event.currentTarget.value })}
             placeholder="Museum, book, URL, screening..."
             value={draft.envelope.source}
           />
-        </Field>
-        <Field label="Source type">
+        </SacredField>
+        <SacredField label="Author">
+          <input
+            className="sacred-input"
+            onChange={(event) => updateEnvelope({ author: event.currentTarget.value })}
+            placeholder="Artist, writer, maker..."
+            value={draft.envelope.author}
+          />
+        </SacredField>
+        <SacredField label="Location">
+          <input
+            className="sacred-input"
+            onChange={(event) => updateEnvelope({ location: event.currentTarget.value })}
+            placeholder="Where did you encounter it?"
+            value={draft.envelope.location}
+          />
+        </SacredField>
+        <SacredField label="Source type">
           <select
-            className="input"
+            className="sacred-input"
             onChange={(event) =>
               updateEnvelope({ sourceType: event.currentTarget.value as SourceType })
             }
-            value={draft.envelope.sourceType}
+            value={draft.envelope.sourceType ?? "other"}
           >
             {sourceTypes.map((sourceType) => (
               <option key={sourceType} value={sourceType}>
@@ -138,80 +141,80 @@ export function PearlForm({
               </option>
             ))}
           </select>
-        </Field>
-        <Field label="Date of encounter">
+        </SacredField>
+        <SacredField label="Date of encounter">
           <input
-            className="input"
+            className="sacred-input"
             onChange={(event) =>
-              updateEnvelope({ encounterDate: event.currentTarget.value })
+              updateEnvelope({
+                date: event.currentTarget.value,
+                encounterDate: event.currentTarget.value,
+              })
             }
             type="date"
-            value={draft.envelope.encounterDate}
+            value={draft.envelope.date || draft.envelope.encounterDate || ""}
           />
-        </Field>
-        <Field label="Tags">
+        </SacredField>
+        <SacredField label="Tags">
           <input
-            className="input"
+            className="sacred-input"
             onChange={(event) =>
               updateEnvelope({ tags: parseTags(event.currentTarget.value) })
             }
             placeholder="authorship, memory, cinema"
-            value={draft.envelope.tags.join(", ")}
+            value={(draft.envelope.tags ?? []).join(", ")}
           />
-        </Field>
-        <Field label="Mood">
+        </SacredField>
+        <SacredField label="Mood">
           <textarea
-            className="input min-h-28"
+            className="sacred-input"
             onChange={(event) => updateEnvelope({ mood: event.currentTarget.value })}
             placeholder="What was your headspace?"
             value={draft.envelope.mood}
           />
-        </Field>
+        </SacredField>
       </div>
 
-      <div className="space-y-5">
-        <Field label="Experiential Record">
+      <div className="sacred-form__stack">
+        <SacredField label="Experiential Record">
           <textarea
-            className="input min-h-44"
+            className="sacred-input"
             onChange={(event) =>
               updateDraft({ experientialRecord: event.currentTarget.value })
             }
             placeholder="What did it feel like to encounter this?"
             value={draft.experientialRecord}
           />
-        </Field>
-        <Field label="Intellectual Synthesis">
+        </SacredField>
+        <SacredField label="Intellectual Synthesis">
           <textarea
-            className="input min-h-44"
+            className="sacred-input"
             onChange={(event) =>
               updateDraft({ intellectualSynthesis: event.currentTarget.value })
             }
             placeholder="What did you learn, connect, or want to make?"
             value={draft.intellectualSynthesis}
           />
-        </Field>
+        </SacredField>
         <section>
-          <div className="flex items-center justify-between gap-4">
-            <h3 className="text-sm font-semibold uppercase tracking-[0.2em] text-stone-500">
-              Connections
-            </h3>
-            <button
-              className="rounded-full border border-stone-300 px-3 py-1 text-sm"
+          <div className="sacred-panel__header">
+            <h2>Connections</h2>
+            <SacredButton
               disabled={!availablePearls.length}
               onClick={addConnection}
               type="button"
             >
               Add connection
-            </button>
+            </SacredButton>
           </div>
-          <div className="mt-3 space-y-3">
+          <div className="sacred-form__connections">
             {draft.connections.map((connection) => (
               <div
-                className="grid gap-3 rounded-2xl border border-stone-200 bg-stone-50 p-4 md:grid-cols-[220px_1fr_auto]"
+                className="sacred-form__connection-row"
                 key={connection.id}
               >
                 <select
-                  className="input bg-white"
+                  className="sacred-input"
                   onChange={(event) =>
                     updateConnection(connection.id, {
                       targetPearlId: event.currentTarget.value,
@@ -226,7 +229,7 @@ export function PearlForm({
                   ))}
                 </select>
                 <input
-                  className="input bg-white"
+                  className="sacred-input"
                   onChange={(event) =>
                     updateConnection(connection.id, {
                       note: event.currentTarget.value,
@@ -235,40 +238,24 @@ export function PearlForm({
                   placeholder="Why are these Pearls connected?"
                   value={connection.note}
                 />
-                <button
-                  className="rounded-full border border-stone-300 px-3 py-2 text-sm"
+                <SacredButton
                   onClick={() => removeConnection(connection.id)}
+                  tone="ghost"
                   type="button"
                 >
                   Remove
-                </button>
+                </SacredButton>
               </div>
             ))}
             {!draft.connections.length && (
-              <p className="rounded-2xl bg-stone-50 p-4 text-sm text-stone-500">
+              <p className="sacred-empty">
                 Add explicit links when another Pearl becomes relevant.
               </p>
             )}
           </div>
         </section>
       </div>
+      </div>
     </form>
-  );
-}
-
-function Field({
-  label,
-  children,
-}: {
-  label: string;
-  children: React.ReactNode;
-}) {
-  return (
-    <label className="block">
-      <span className="text-sm font-semibold uppercase tracking-[0.2em] text-stone-500">
-        {label}
-      </span>
-      <div className="mt-2">{children}</div>
-    </label>
   );
 }

@@ -1,7 +1,15 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { mockSearchAdapter } from "@/lib/search/adapter";
+import {
+  SacredButton,
+  SacredEmpty,
+  SacredMessage,
+  SacredMessageLog,
+  SacredOneLineLoader,
+  getRandomSacredLoaderIndex,
+} from "@/components/sacred/Sacred";
+import { searchAdapter } from "@/lib/search/adapter";
 import type { Pearl, ThreadingResult } from "@/lib/pearls/types";
 
 type ThreadingPanelProps = {
@@ -14,6 +22,9 @@ export function ThreadingPanel({ pearls, onSelectPearl }: ThreadingPanelProps) {
     "I am starting a project about anonymity and authorship.",
   );
   const [result, setResult] = useState<ThreadingResult | null>(null);
+  const [isThreading, setIsThreading] = useState(false);
+  const [loaderIndex, setLoaderIndex] = useState(0);
+  const [errorMessage, setErrorMessage] = useState("");
 
   const pearlLookup = useMemo(
     () => new Map(pearls.map((pearl) => [pearl.id, pearl])),
@@ -21,35 +32,55 @@ export function ThreadingPanel({ pearls, onSelectPearl }: ThreadingPanelProps) {
   );
 
   async function threadPrompt() {
-    setResult(await mockSearchAdapter.thread({ prompt }, pearls));
+    const trimmedPrompt = prompt.trim();
+
+    if (!trimmedPrompt) {
+      return;
+    }
+
+    setIsThreading(true);
+    setLoaderIndex(getRandomSacredLoaderIndex());
+    setErrorMessage("");
+
+    try {
+      setResult(await searchAdapter.thread({ prompt: trimmedPrompt }, pearls));
+    } catch (error) {
+      setErrorMessage(
+        error instanceof Error
+          ? error.message
+          : "The Professor could not generate a briefing.",
+      );
+    } finally {
+      setIsThreading(false);
+    }
   }
 
   return (
-    <section className="rounded-[2rem] border border-stone-200 bg-white p-5">
-      <p className="text-xs uppercase tracking-[0.3em] text-stone-500">
-        Threading
-      </p>
-      <h3 className="mt-2 text-2xl font-semibold">Project briefing mock</h3>
-      <p className="mt-3 text-sm leading-6 text-stone-600">
-        Describe a project or question. The placeholder adapter surfaces likely
-        Pearls and shows where semantic retrieval will plug in.
-      </p>
+    <section className="threading-shell">
       <textarea
-        className="input mt-4 min-h-28"
+        className="sacred-input"
         onChange={(event) => setPrompt(event.currentTarget.value)}
         value={prompt}
       />
-      <button
-        className="mt-3 w-full rounded-full bg-stone-950 px-4 py-3 text-sm font-semibold text-white"
+      <SacredButton
+        disabled={isThreading || !prompt.trim()}
         onClick={threadPrompt}
+        tone="primary"
         type="button"
       >
-        Generate mock briefing
-      </button>
+        {isThreading ? <SacredOneLineLoader index={loaderIndex} /> : "Generate briefing"}
+      </SacredButton>
+      {errorMessage ? (
+        <p className="mvp-layer-text">Threading unavailable: {errorMessage}</p>
+      ) : null}
       {result && (
-        <div className="mt-5 rounded-2xl bg-stone-50 p-4">
-          <p className="text-sm leading-6 text-stone-700">{result.briefing}</p>
-          <div className="mt-4 space-y-2">
+        <div className="threading-result">
+          <SacredMessageLog>
+            <SacredMessage label="Hermes">
+              {result.briefing}
+            </SacredMessage>
+          </SacredMessageLog>
+          <div className="threading-result__pearls">
             {result.pearlIds.map((id) => {
               const pearl = pearlLookup.get(id);
 
@@ -59,7 +90,7 @@ export function ThreadingPanel({ pearls, onSelectPearl }: ThreadingPanelProps) {
 
               return (
                 <button
-                  className="block w-full rounded-xl border border-stone-200 bg-white px-3 py-2 text-left text-sm font-medium"
+                  className="mvp-connection-row"
                   key={id}
                   onClick={() => onSelectPearl(id)}
                   type="button"
@@ -71,6 +102,11 @@ export function ThreadingPanel({ pearls, onSelectPearl }: ThreadingPanelProps) {
           </div>
         </div>
       )}
+      {!result ? (
+        <SacredEmpty title="No briefing generated.">
+          Generate a read-only Professor briefing from your Pearl library.
+        </SacredEmpty>
+      ) : null}
     </section>
   );
 }

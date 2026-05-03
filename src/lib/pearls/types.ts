@@ -15,10 +15,14 @@ export type PearlId = string;
 export type PearlEnvelope = {
   title: string;
   source: string;
-  sourceType: SourceType;
-  encounterDate: string;
-  tags: string[];
-  mood: string;
+  author: string;
+  date: string;
+  location: string;
+  thumbnailUrl: string;
+  sourceType?: SourceType;
+  encounterDate?: string;
+  tags?: string[];
+  mood?: string;
 };
 
 export type ProfessorMessage = {

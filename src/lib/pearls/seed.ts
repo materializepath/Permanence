@@ -6,6 +6,10 @@ export const seedPearls: Pearl[] = [
     envelope: {
       title: "Marcel Duchamp Exhibit",
       source: "Museum of Modern Art, New York",
+      author: "",
+      date: "2026-03-14",
+      location: "Museum of Modern Art, New York",
+      thumbnailUrl: "",
       sourceType: "exhibition",
       encounterDate: "2026-03-14",
       tags: ["authorship", "objects", "modernism", "institution"],
@@ -32,15 +36,7 @@ export const seedPearls: Pearl[] = [
         createdAt: "2026-03-14T20:21:00.000Z",
       },
     ],
-    connections: [
-      {
-        id: "connection-to-anonymous-webcomic",
-        targetPearlId: "anonymous-webcomic-archive",
-        note:
-          "Both encounters made authorship feel unstable: one through institutional designation, the other through disappearance.",
-        createdAt: "2026-03-14T20:35:00.000Z",
-      },
-    ],
+    connections: [],
     attachments: [],
     createdAt: "2026-03-14T20:10:00.000Z",
     updatedAt: "2026-03-14T20:35:00.000Z",
@@ -228,31 +224,14 @@ export const seedPearls: Pearl[] = [
       "The story's power is structural: a single question becomes an engine for scale, carrying human anxiety into cosmic recursion.",
   }),
   {
-    id: "anonymous-webcomic-archive",
-    envelope: {
-      title: "Anonymous Webcomic Archive",
-      source: "Recovered personal bookmark folder",
-      sourceType: "website",
-      encounterDate: "2026-02-01",
-      tags: ["anonymity", "internet", "memory", "authorship"],
-      mood:
-        "Nostalgic but suspicious of nostalgia, trying to separate the work from the era around it.",
-    },
-    experientialRecord:
-      "Reading it again felt like opening a room that had been sealed with all the furniture still inside. The crude interface and missing context were part of the atmosphere.",
-    intellectualSynthesis:
-      "Anonymity changes the way a work ages. Without a stable author biography, the piece becomes attached to the network conditions that carried it.",
-    professorTranscript: [],
-    connections: [],
-    attachments: [],
-    createdAt: "2026-02-01T19:00:00.000Z",
-    updatedAt: "2026-02-01T19:00:00.000Z",
-  },
-  {
     id: "blade-runner-rain",
     envelope: {
       title: "Blade Runner, Rain, and Manufactured Memory",
       source: "Home screening",
+      author: "Ridley Scott",
+      date: "2026-01-09",
+      location: "Home screening",
+      thumbnailUrl: "",
       sourceType: "film",
       encounterDate: "2026-01-09",
       tags: ["memory", "cinema", "atmosphere", "identity"],
@@ -299,6 +278,10 @@ function makePearl({
     envelope: {
       title,
       source,
+      author: "",
+      date: encounterDate,
+      location: source,
+      thumbnailUrl: "",
       sourceType,
       encounterDate,
       tags,

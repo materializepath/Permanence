@@ -1,23 +1,23 @@
-# Spatial Prototype Archive
+# Champagne Design Archive
 
 Archived on 2026-04-28 before restarting the visual direction for Permanence.
 
 ## Git References
 
-- Branch: `archive/spatial-prototype`
-- Tag: `archive/spatial-prototype-2026-04-28`
+- Branch: `archive/champagne-design`
+- Tag: `archive/champagne-design-2026-04-28`
 - Baseline commit: `Archive spatial prototype baseline.`
 
 To inspect the archived state:
 
 ```bash
-git switch archive/spatial-prototype
+git switch archive/champagne-design
 ```
 
 To return to active redesign work:
 
 ```bash
-git switch redesign/aesthetic-reset
+git switch main
 ```
 
 ## What Was Preserved
@@ -28,7 +28,7 @@ The archive captures the current local-first Next prototype:
 - Browser-local persistence through `src/lib/pearls/store.ts`.
 - Seed data and local text/tag filtering.
 - Mock Professor and threading adapters that demonstrate intended flows without external services.
-- A spatial pearl-table interface and glassy memory aesthetic.
+- The archived "champagne" design: a spatial pearl-table interface and glassy memory aesthetic.
 
 ## What Future Agents Should Keep
 
@@ -41,4 +41,4 @@ Future implementation work should preserve the product concept in `permanence-pi
 
 ## What Future Agents Should Not Assume
 
-The archived spatial/glass/pearl-table aesthetic is not the continuing direction. Treat it as a saved prototype, not a design system. Redesign work can replace the layout, navigation, visual language, and interaction patterns while keeping the Pearl concept and local-first architecture in mind.
+The archived champagne aesthetic, including the spatial/glass/pearl-table interface, is not the continuing direction. Treat it as a saved prototype, not a design system. Redesign work can replace the layout, navigation, visual language, and interaction patterns while keeping the Pearl concept and local-first architecture in mind.

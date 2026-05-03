@@ -1,4 +1,5 @@
 import { seedPearls } from "./seed";
+import { normalizePearl, normalizePearls } from "./normalize";
 import type {
   Pearl,
   PearlDraft,
@@ -9,10 +10,35 @@ import type {
 
 const STORAGE_KEY = "permanence.pearls.v1";
 const POSITIONS_KEY = "permanence.pearl-positions.v1";
+const REMOVED_PEARL_IDS = new Set<PearlId>(["anonymous-webcomic-archive"]);
 
 const isBrowser = () => typeof window !== "undefined";
 
 export type PearlPosition = { x: number; y: number };
+
+export function loadStoredPearls(): Pearl[] | undefined {
+  if (!isBrowser()) {
+    return undefined;
+  }
+
+  const stored = window.localStorage.getItem(STORAGE_KEY);
+
+  if (!stored) {
+    return undefined;
+  }
+
+  try {
+    const pearls = JSON.parse(stored) as Pearl[];
+
+    if (!Array.isArray(pearls)) {
+      return undefined;
+    }
+
+    return normalizePearls(pearls);
+  } catch {
+    return undefined;
+  }
+}
 
 export function loadPearlPositions(): Record<PearlId, PearlPosition> {
   if (!isBrowser()) {
@@ -61,8 +87,12 @@ export function emptyPearlDraft(): PearlDraft {
     envelope: {
       title: "",
       source: "",
+      author: "",
+      date: "",
+      location: "",
+      thumbnailUrl: "",
       sourceType: "other",
-      encounterDate: new Date().toISOString().slice(0, 10),
+      encounterDate: "",
       tags: [],
       mood: "",
     },
@@ -76,29 +106,20 @@ export function emptyPearlDraft(): PearlDraft {
 
 export function loadPearls(): Pearl[] {
   if (!isBrowser()) {
-    return seedPearls;
+    return normalizePearls(seedPearls);
   }
 
-  const stored = window.localStorage.getItem(STORAGE_KEY);
+  const storedPearls = loadStoredPearls();
 
-  if (!stored) {
-    savePearls(seedPearls);
-    return seedPearls;
+  if (!storedPearls) {
+    const normalizedSeedPearls = normalizePearls(seedPearls);
+    savePearls(normalizedSeedPearls);
+    return normalizedSeedPearls;
   }
 
-  try {
-    const pearls = JSON.parse(stored) as Pearl[];
-
-    if (!Array.isArray(pearls)) {
-      return seedPearls;
-    }
-
-    const reconciledPearls = reconcileSeedPearls(pearls);
-    savePearls(reconciledPearls);
-    return reconciledPearls;
-  } catch {
-    return seedPearls;
-  }
+  const reconciledPearls = reconcileSeedPearls(storedPearls);
+  savePearls(reconciledPearls);
+  return reconciledPearls;
 }
 
 export function savePearls(pearls: Pearl[]) {
@@ -117,7 +138,7 @@ export function createPearl(draft: PearlDraft, pearls = loadPearls()) {
     createdAt: now,
     updatedAt: now,
   };
-  const nextPearls = [pearl, ...pearls];
+  const nextPearls = [normalizePearl(pearl), ...pearls];
   savePearls(nextPearls);
   return { pearl, pearls: nextPearls };
 }
@@ -129,11 +150,11 @@ export function updatePearl(
 ) {
   const nextPearls = pearls.map((pearl) =>
     pearl.id === id
-      ? {
+      ? normalizePearl({
           ...pearl,
           ...draft,
           updatedAt: new Date().toISOString(),
-        }
+        })
       : pearl,
   );
 
@@ -179,6 +200,7 @@ export function searchPearls(pearls: Pearl[], filters: PearlFilters) {
   const tag = filters.tag?.trim().toLowerCase();
 
   return pearls.filter((pearl) => {
+    const tags = pearl.envelope.tags ?? [];
     const matchesType =
       !filters.sourceType ||
       filters.sourceType === "all" ||
@@ -186,13 +208,16 @@ export function searchPearls(pearls: Pearl[], filters: PearlFilters) {
 
     const matchesTag =
       !tag ||
-      pearl.envelope.tags.some((pearlTag) => pearlTag.toLowerCase() === tag);
+      tags.some((pearlTag) => pearlTag.toLowerCase() === tag);
 
     const searchableText = [
       pearl.envelope.title,
       pearl.envelope.source,
+      pearl.envelope.author,
+      pearl.envelope.date,
+      pearl.envelope.location,
       pearl.envelope.mood,
-      pearl.envelope.tags.join(" "),
+      tags.join(" "),
       pearl.experientialRecord,
       pearl.intellectualSynthesis,
       pearl.professorTranscript.map((message) => message.content).join(" "),
@@ -208,16 +233,26 @@ export function searchPearls(pearls: Pearl[], filters: PearlFilters) {
 
 export function listTags(pearls: Pearl[]) {
   return Array.from(
-    new Set(pearls.flatMap((pearl) => pearl.envelope.tags)),
+    new Set(pearls.flatMap((pearl) => pearl.envelope.tags ?? [])),
   ).sort((a, b) => a.localeCompare(b));
 }
 
 function reconcileSeedPearls(pearls: Pearl[]) {
-  const storedIds = new Set(pearls.map((pearl) => pearl.id));
-  const missingSeedPearls = seedPearls.filter((pearl) => !storedIds.has(pearl.id));
+  const activePearls = normalizePearls(pearls)
+    .filter((pearl) => !REMOVED_PEARL_IDS.has(pearl.id))
+    .map((pearl) => ({
+      ...pearl,
+      connections: pearl.connections.filter(
+        (connection) => !REMOVED_PEARL_IDS.has(connection.targetPearlId),
+      ),
+    }));
+  const storedIds = new Set(activePearls.map((pearl) => pearl.id));
+  const missingSeedPearls = normalizePearls(seedPearls).filter(
+    (pearl) => !storedIds.has(pearl.id),
+  );
 
   return [
-    ...pearls.map((pearl) =>
+    ...activePearls.map((pearl) =>
       pearl.id === "duchamp-moma-readymades" &&
       pearl.envelope.title === "Duchamp Readymades at MoMA"
         ? {

@@ -2,22 +2,18 @@
   "name": "permanence",
   "private": true,
   "scripts": {
+    "manifest": "node scripts/generate-hermes-manifest.mjs",
+    "predev": "npm run manifest",
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
     "lint": "eslint .",
-    "postinstall": "patch-package",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@react-three/drei": "^10.7.7",
-    "@react-three/fiber": "^9.6.0",
-    "@react-three/postprocessing": "^3.0.4",
     "next": "^16.2.4",
-    "postprocessing": "^6.39.1",
     "react": "^19.2.5",
-    "react-dom": "^19.2.5",
-    "three": "^0.184.0"
+    "react-dom": "^19.2.5"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4.2.4",
@@ -26,7 +22,6 @@
     "@types/react-dom": "^19.2.3",
     "eslint": "^9.39.4",
     "eslint-config-next": "^16.2.4",
-    "patch-package": "^8.0.1",
     "tailwindcss": "^4.2.4",
     "typescript": "^6.0.3"
   }
