@@ -106,15 +106,14 @@ export function emptyPearlDraft(): PearlDraft {
 
 export function loadPearls(): Pearl[] {
   if (!isBrowser()) {
-    return normalizePearls(seedPearls);
+    return [];
   }
 
   const storedPearls = loadStoredPearls();
 
   if (!storedPearls) {
-    const normalizedSeedPearls = normalizePearls(seedPearls);
-    savePearls(normalizedSeedPearls);
-    return normalizedSeedPearls;
+    savePearls([]);
+    return [];
   }
 
   const reconciledPearls = reconcileSeedPearls(storedPearls);

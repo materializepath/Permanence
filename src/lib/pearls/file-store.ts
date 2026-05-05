@@ -1,7 +1,6 @@
 import { mkdir, readFile, rename, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { normalizePearl, normalizePearls } from "@/lib/pearls/normalize";
-import { seedPearls } from "@/lib/pearls/seed";
 import type { Pearl } from "@/lib/pearls/types";
 
 const DATA_DIR = path.join(process.cwd(), ".data");
@@ -24,9 +23,8 @@ export async function readPearlsFromDisk(): Promise<Pearl[]> {
     return normalizePearls(pearls);
   } catch (error) {
     if (isMissingFileError(error)) {
-      const normalizedSeedPearls = normalizePearls(seedPearls);
-      await writePearlsToDisk(normalizedSeedPearls);
-      return normalizedSeedPearls;
+      await writePearlsToDisk([]);
+      return [];
     }
 
     throw error;

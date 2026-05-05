@@ -54,9 +54,9 @@ function execHermes(command: string, args: string[], timeoutMs: number) {
           NO_COLOR: "1",
         },
       },
-      (error, stdout, stderr) => {
+        (error, stdout, stderr) => {
         if (error) {
-          reject(new Error(formatHermesError(error, stdout, stderr, timeoutMs)));
+          reject(new Error(formatHermesError(error, stdout, stderr, timeoutMs, command)));
           return;
         }
 
@@ -71,11 +71,17 @@ function formatHermesError(
   stdout: string,
   stderr: string,
   timeoutMs: number,
+  command: string,
 ) {
   const errno = error as NodeJS.ErrnoException & {
     killed?: boolean;
     signal?: string;
+    code?: string;
   };
+
+  if (errno.code === "ENOENT") {
+    return `Your Hermes Agent is not set up yet. The "${command}" command was not found. Install Hermes and make sure it is available in your PATH.`;
+  }
 
   if (errno.killed || errno.signal === "SIGTERM") {
     return `Hermes timed out after ${Math.round(timeoutMs / 1000)} seconds.`;
