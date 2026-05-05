@@ -2,13 +2,11 @@
 
 A local-first personal creative memory system. Its central object is the **Pearl**: a structured record of a cultural encounter, the synthesis that followed, and the connections that become useful later.
 
-Each Pearl has five layers:
+Each Pearl has three layers:
 
-1. **Envelope** — metadata (title, source, author, date, tags, mood)
-2. **Experiential Record** — how the encounter felt
-3. **Intellectual Synthesis** — what it means and why it matters
-4. **Professor Transcript** — a running dialogue with the Hermes Professor about this Pearl
-5. **Connections** — annotated links to other Pearls
+1. **Envelope** — metadata (title, source/type, author, date, location)
+2. **Experiential Diary** — how the encounter felt
+3. **Professor Transcript** — a running dialogue with the Hermes Professor about this Pearl
 
 ## Prerequisites
 
