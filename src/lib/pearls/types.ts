@@ -20,6 +20,7 @@ export type PearlEnvelope = {
   location: string;
   thumbnailUrl: string;
   sourceType?: SourceType;
+  sourceUrl?: string;
   encounterDate?: string;
   tags?: string[];
   mood?: string;

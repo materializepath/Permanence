@@ -186,6 +186,7 @@ export default function Home() {
       onStartNewPearl={startNewPearl}
       onTranscriptChange={updateTranscript}
       onUpdatePearl={updatePearl}
+      onPearlCreated={(pearl) => setPearls((prev) => [pearl, ...prev])}
       pearls={pearls}
       persistenceMessage={persistenceMessage}
       selectedPearl={selectedPearl}

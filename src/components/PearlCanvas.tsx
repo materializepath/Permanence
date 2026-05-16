@@ -10,7 +10,7 @@ import {
   type PearlPosition,
 } from "@/lib/pearls/store";
 import { getPearlThumbnail } from "@/lib/pearls/thumbnails";
-import type { Pearl } from "@/lib/pearls/types";
+import type { Pearl, PearlConnection } from "@/lib/pearls/types";
 
 type DragState =
   | {
@@ -74,6 +74,7 @@ export function PearlCanvas({
   const [zoom, setZoom] = useState(1);
   const [hoveredPearlId, setHoveredPearlId] = useState<string | null>(null);
   const [modalPearlId, setModalPearlId] = useState<string | null>(null);
+  const [newPearlIds, setNewPearlIds] = useState<Set<string>>(new Set());
   const dragState = useRef<DragState | null>(null);
 
   const placedPearls = useMemo(
@@ -84,7 +85,37 @@ export function PearlCanvas({
         thumbnail: getPearlThumbnail(pearl),
       })),
     [pearls, positions],
-  );
+  )
+
+  const connections = useMemo(() => {
+    const pearlMap = new Map(pearls.map((p) => [p.id, p]))
+    const positionMap = new Map(placedPearls.map((p) => [p.pearl.id, p.position]))
+    const result: {
+      sourceId: string
+      targetId: string
+      sourcePos: { x: number; y: number }
+      targetPos: { x: number; y: number }
+    }[] = []
+
+    for (const pearl of pearls) {
+      for (const conn of pearl.connections) {
+        if (pearlMap.has(conn.targetPearlId)) {
+          const sourcePos = positionMap.get(pearl.id)
+          const targetPos = positionMap.get(conn.targetPearlId)
+          if (sourcePos && targetPos) {
+            result.push({
+              sourceId: pearl.id,
+              targetId: conn.targetPearlId,
+              sourcePos,
+              targetPos,
+            })
+          }
+        }
+      }
+    }
+
+    return result
+  }, [pearls, placedPearls]);
 
   const modalPearl = pearls.find((pearl) => pearl.id === modalPearlId);
   const hoveredPearl = placedPearls.find(({ pearl }) => pearl.id === hoveredPearlId);
@@ -131,6 +162,36 @@ export function PearlCanvas({
     return () =>
       window.removeEventListener("programmer-panel-interaction-start", clearHoverPreview);
   }, []);
+
+  useEffect(() => {
+    function handlePearlIngested(
+      event: CustomEvent<{
+        pearlId: string
+        position: { x: number; y: number }
+      }>,
+    ) {
+      const { pearlId, position } = event.detail
+      setPan({
+        x: -position.x * zoom + window.innerWidth / 2,
+        y: -position.y * zoom + window.innerHeight / 2,
+      })
+      setNewPearlIds((current) => {
+        const next = new Set(current)
+        next.add(pearlId)
+        return next
+      })
+      setTimeout(() => {
+        setNewPearlIds((current) => {
+          const next = new Set(current)
+          next.delete(pearlId)
+          return next
+        })
+      }, 700)
+    }
+
+    window.addEventListener("pearl-ingested", handlePearlIngested as EventListener);
+    return () => window.removeEventListener("pearl-ingested", handlePearlIngested as EventListener);
+  }, [zoom]);
 
   function beginCanvasDrag(event: React.PointerEvent<HTMLDivElement>) {
     if (modalPearlId) {
@@ -295,28 +356,58 @@ export function PearlCanvas({
       >
         <CanvasLogo onPointerDown={beginLogoDrag} position={logoPosition} />
 
-        {placedPearls.map(({ pearl, position, thumbnail }) => (
+        <svg className="canvas-connections" style={{ position: 'absolute', left: 0, top: 0, width: 1, height: 1, overflow: 'visible', pointerEvents: 'none', zIndex: 1 }}>
+          {connections.map((conn) => {
+            const midX = (conn.sourcePos.x + conn.targetPos.x) / 2
+            const dY = conn.targetPos.y - conn.sourcePos.y
+            const controlOffset = Math.abs(dY) * 0.3 + 40
+            return (
+              <path
+                key={`${conn.sourceId}-${conn.targetId}`}
+                className="canvas-connection"
+                d={`M ${conn.sourcePos.x} ${conn.sourcePos.y} C ${conn.sourcePos.x + controlOffset} ${conn.sourcePos.y}, ${conn.targetPos.x - controlOffset} ${conn.targetPos.y}, ${conn.targetPos.x} ${conn.targetPos.y}`}
+              />
+            )
+          })}
+        </svg>
+
+        {placedPearls.map(({ pearl, position, thumbnail }) => {
+          const connectionCount = connections.filter(
+            (c) => c.sourceId === pearl.id || c.targetId === pearl.id,
+          ).length
+          const isNew = newPearlIds.has(pearl.id)
+          return (
           <button
-            className="pearl-node"
+            className={`pearl-node pearl-node--${pearl.envelope.sourceType || "other"}${isNew ? " pearl-node--new" : ""}`}
             key={pearl.id}
             onPointerDown={(event) => beginPearlDrag(event, pearl.id, position)}
             onPointerEnter={() => {
               if (!isProgrammerPanelInteracting()) {
-                setHoveredPearlId(pearl.id);
+                setHoveredPearlId(pearl.id)
               }
             }}
             onPointerLeave={() => setHoveredPearlId(null)}
             style={{ transform: `translate(${position.x}px, ${position.y}px)` }}
             type="button"
           >
-            {thumbnail.kind === "image" ? (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img draggable={false} src={thumbnail.url} alt={thumbnail.alt} />
-            ) : (
-              <span className="pearl-node__placeholder">{thumbnail.label}</span>
-            )}
+            <SourceTypeBadge sourceType={pearl.envelope.sourceType} />
+            <div className="pearl-node__media">
+              {thumbnail.kind === "image" ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img draggable={false} src={thumbnail.url} alt={thumbnail.alt} />
+              ) : (
+                <span className="pearl-node__placeholder">{thumbnail.label}</span>
+              )}
+            </div>
+            <div className="pearl-node__info">
+              <span className="pearl-node__title">{pearl.envelope.title || "Untitled"}</span>
+              {connectionCount > 0 && (
+                <span className="pearl-node__connections">{connectionCount}</span>
+              )}
+            </div>
           </button>
-        ))}
+          )
+        })}
 
         {hoveredPearl ? (
           <div
@@ -380,6 +471,27 @@ export function PearlCanvas({
       ) : null}
     </section>
   );
+}
+
+function SourceTypeBadge({ sourceType }: { sourceType?: string }) {
+  const icon: Record<string, string> = {
+    exhibition: '\uD83C\uDFA8',
+    film: '\uD83C\uDFAC',
+    book: '\uD83D\uDCD6',
+    artist: '\uD83D\uDC64',
+    website: '\uD83C\uDF10',
+    article: '\uD83D\uDCC4',
+    music: '\uD83C\uDFB5',
+    conversation: '\uD83D\uDCAC',
+    place: '\uD83D\uDCCD',
+    other: '\u25C6',
+  }
+
+  return (
+    <span className="source-badge" aria-label={`Source: ${sourceType || 'other'}`}>
+      {icon[sourceType || 'other'] || icon['other']}
+    </span>
+  )
 }
 
 function CanvasLogo({

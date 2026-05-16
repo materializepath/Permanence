@@ -6,6 +6,7 @@ import { PearlDraftModal } from "@/components/PearlDraftModal";
 import { PearlForm } from "@/components/PearlForm";
 import { PearlReader } from "@/components/PearlReader";
 import { ProgrammerPanel } from "@/components/ProgrammerPanel";
+import { IngestionPanel } from "@/components/canvas/IngestionPanel";
 import {
   SacredActionButton,
   SacredButton,
@@ -45,6 +46,7 @@ type PermanenceShellProps = {
   onFiltersChange: (filters: PearlFilters) => void;
   onTranscriptChange: Parameters<typeof PearlReader>[0]["onTranscriptChange"];
   onUpdatePearl: (pearl: Pearl) => void;
+  onPearlCreated: (pearl: Pearl) => void;
 };
 
 export function PermanenceShell({
@@ -66,6 +68,7 @@ export function PermanenceShell({
   onFiltersChange,
   onTranscriptChange,
   onUpdatePearl,
+  onPearlCreated,
 }: PermanenceShellProps) {
   const selectedOrFirstPearl = selectedPearl ?? visiblePearls[0];
   const isCreating = mode === "new";
@@ -245,16 +248,22 @@ export function PermanenceShell({
               />
             </section>
           ) : homeView === "canvas" ? (
-            <PearlCanvas
-              onClosePearl={onClosePearl}
-              onDeletePearl={onDeletePearl}
-              onSelectPearl={onSelectPearl}
-              onStartEditingPearl={onStartEditingPearl}
-              onStartNewPearl={onStartNewPearl}
-              onTranscriptChange={onTranscriptChange}
-              onUpdatePearl={onUpdatePearl}
-              pearls={pearls}
-            />
+            <div className="canvas-view-root">
+              <PearlCanvas
+                onClosePearl={onClosePearl}
+                onDeletePearl={onDeletePearl}
+                onSelectPearl={onSelectPearl}
+                onStartEditingPearl={onStartEditingPearl}
+                onStartNewPearl={onStartNewPearl}
+                onTranscriptChange={onTranscriptChange}
+                onUpdatePearl={onUpdatePearl}
+                pearls={pearls}
+              />
+              <IngestionPanel
+                onPearlCreated={onPearlCreated}
+                canvasCenter={{ x: 0, y: 0 }}
+              />
+            </div>
           ) : (
             <div className="mvp-grid">
               <LibraryPane

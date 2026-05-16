@@ -1277,6 +1277,154 @@ textarea.sacred-input {
   width: min(72ch, calc(100vw - 4ch));
 }
 
+.ingestion-panel {
+  position: fixed;
+  left: 50%;
+  bottom: 1ch;
+  z-index: 40;
+  display: flex;
+  align-items: center;
+  gap: 1ch;
+  transform: translateX(-50%);
+  background: #000000;
+  color: #ffffff;
+  padding: 0.5ch 1ch;
+  box-shadow: inset 0 0 0 2px #ffffff;
+}
+
+.ingestion-port {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5ch;
+  border: 0;
+  background: transparent;
+  color: #ffffff;
+  font-family: var(--font-family-mono);
+  font-size: var(--font-size);
+  margin: 0;
+  outline: 0;
+  padding: 0.5ch 1ch;
+  text-transform: uppercase;
+  cursor: pointer;
+  position: relative;
+}
+
+.ingestion-port:hover,
+.ingestion-port:focus-visible {
+  background: #ffffff;
+  color: #000000;
+  outline: none;
+}
+
+.ingestion-port__icon {
+  font-size: 1.1em;
+  line-height: 1;
+}
+
+.ingestion-port__label {
+  white-space: nowrap;
+}
+
+.ingestion-port__hotkey {
+  position: absolute;
+  right: -1ch;
+  top: -0.5ch;
+  background: #ffffff;
+  color: #000000;
+  font-size: 0.7em;
+  padding: 0 0.5ch;
+  line-height: 1.4;
+}
+
+html[data-permanence-color-mode="dark"] .ingestion-panel {
+  background: #050505;
+}
+
+.ingestion-modal__body {
+  display: grid;
+  gap: calc(var(--theme-line-height-base) * 1rem);
+}
+
+.ingestion-modal__header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 2ch;
+}
+
+.ingestion-modal__header h2 {
+  margin: 0;
+  font-size: var(--font-size);
+  font-weight: 400;
+  text-transform: uppercase;
+}
+
+.ingestion-modal__textarea {
+  min-height: calc(var(--theme-line-height-base) * 8rem);
+  resize: vertical;
+}
+
+.ingestion-modal__actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 1ch;
+}
+
+.ingestion-modal__status {
+  margin: 0;
+  color: var(--theme-text);
+  text-transform: uppercase;
+}
+
+.ingestion-modal__error {
+  margin: 0;
+  color: var(--theme-text);
+  text-transform: uppercase;
+}
+
+.file-drop-zone {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: grid;
+  place-items: center;
+  background: color-mix(in srgb, var(--theme-background) 80%, transparent);
+  cursor: copy;
+}
+
+.file-drop-zone--active {
+  background: color-mix(in srgb, var(--theme-background) 60%, transparent);
+}
+
+.file-drop-zone__content {
+  display: grid;
+  place-items: center;
+  gap: calc(var(--theme-line-height-base) * 0.5rem);
+  padding: 4ch 6ch;
+  box-shadow:
+    inset 0 0 0 2px var(--theme-text),
+    0 0 0 2px var(--theme-text);
+  background: var(--theme-background);
+  text-align: center;
+}
+
+.file-drop-zone__icon {
+  font-size: 3em;
+  line-height: 1;
+}
+
+.file-drop-zone__text {
+  margin: 0;
+  font-size: 1.2em;
+  text-transform: uppercase;
+}
+
+.file-drop-zone__hint {
+  margin: 0;
+  text-transform: uppercase;
+  opacity: 0.6;
+}
+
 .thumbnail-zoom {
   position: fixed;
   inset: 0;
@@ -1352,4 +1500,103 @@ textarea.sacred-input {
     width: calc(100vw - 2ch) !important;
     transform: translate(1ch, calc(var(--theme-line-height-base) * 3rem)) !important;
   }
+}
+
+/* === Canvas Connection Lines === */
+.canvas-connections {
+  /* positioned inside .pearl-canvas__world */
+}
+.canvas-connection {
+  fill: none;
+  stroke: var(--theme-text);
+  stroke-width: 1;
+  stroke-dasharray: 4 4;
+  opacity: 0.3;
+  transition: opacity 0.2s ease, stroke-dasharray 0.2s ease;
+}
+.canvas-connection--active {
+  opacity: 0.8;
+  stroke-dasharray: none;
+}
+
+/* === Rich Pearl Nodes === */
+.pearl-node {
+  width: 12ch;
+  height: auto;
+  min-height: calc(var(--theme-line-height-base) * 5rem);
+  display: grid;
+  grid-template-rows: auto auto;
+  gap: 0;
+  padding: 0;
+  overflow: hidden;
+}
+.pearl-node__media {
+  width: 100%;
+  height: calc(var(--theme-line-height-base) * 3rem);
+  overflow: hidden;
+}
+.pearl-node__media img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.pearl-node__info {
+  position: relative;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  gap: 0.5ch;
+  padding: 0.25rem 0.5rem;
+}
+.pearl-node__title {
+  font-size: 0.7em;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  text-align: left;
+  text-transform: uppercase;
+}
+.pearl-node__connections {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.2em;
+  height: 1.2em;
+  font-size: 0.6em;
+  border-radius: 999px;
+  background: var(--theme-text);
+  color: var(--theme-background);
+}
+.source-badge {
+  position: absolute;
+  top: -0.5rem;
+  left: -0.5rem;
+  z-index: 3;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.5em;
+  height: 1.5em;
+  font-size: 0.7em;
+  background: var(--theme-background);
+  border: 1px solid var(--theme-text);
+  border-radius: 999px;
+}
+
+/* === Ingestion Animation === */
+@keyframes pearl-ingest {
+  0% { transform: scale(0); opacity: 0; }
+  50% { transform: scale(1.2); opacity: 1; }
+  100% { transform: scale(1); opacity: 1; }
+}
+.pearl-node--new {
+  animation: pearl-ingest 0.6s ease-out forwards;
+}
+
+/* === Canvas View Root (wraps PearlCanvas + IngestionPanel) === */
+.canvas-view-root {
+  position: relative;
+  height: 100vh;
+  min-height: 0;
+  overflow: hidden;
 }
