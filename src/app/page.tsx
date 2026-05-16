@@ -65,6 +65,21 @@ export default function Home() {
     };
   }, []);
 
+  // Handle bookmarklet ingestion redirect
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const ingestPearlId = sessionStorage.getItem("permanence.ingest-pearl");
+    if (ingestPearlId) {
+      sessionStorage.removeItem("permanence.ingest-pearl");
+      // After pearls are loaded, select and center on the ingested pearl
+      const checkForPearl = () => {
+        setSelectedPearlId(ingestPearlId);
+      };
+      // Give hydrate time to complete
+      setTimeout(checkForPearl, 300);
+    }
+  }, [pearls.length]);
+
   const visiblePearls = useMemo(
     () => searchPearls(pearls, filters),
     [filters, pearls],

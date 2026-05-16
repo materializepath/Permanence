@@ -6,8 +6,8 @@ import { readUserConfig } from "@/lib/user-config/server";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Permanence",
-  description: "A personal creative memory system built around Pearls.",
+  title: "Permanence — Infinite Canvas",
+  description: "An infinite canvas for your taste, memory, and creative encounters. Ingest URLs, notes, and media through luminous ports.",
 };
 
 export default async function RootLayout({
