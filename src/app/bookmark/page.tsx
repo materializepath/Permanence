@@ -1,11 +1,10 @@
 "use client";
 
-import { useEffect } from "react";
+import { Suspense, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { createPearl } from "@/lib/pearls/store";
-import { emptyPearlDraft } from "@/lib/pearls/store";
+import { createPearl, emptyPearlDraft } from "@/lib/pearls/store";
 
-export default function BookmarkPage() {
+function BookmarkHandler() {
   const searchParams = useSearchParams();
   const router = useRouter();
 
@@ -28,7 +27,6 @@ export default function BookmarkPage() {
 
     const result = createPearl(draft);
 
-    // Fire the custom event so the canvas picks it up
     const hashPosition = hashStringToPosition(result.pearl.id);
     window.dispatchEvent(
       new CustomEvent("pearl-ingested", {
@@ -39,7 +37,6 @@ export default function BookmarkPage() {
       })
     );
 
-    // Store ingest target in sessionStorage, redirect to main
     sessionStorage.setItem("permanence.ingest-pearl", result.pearl.id);
     router.replace("/");
   }, [searchParams, router]);
@@ -56,6 +53,28 @@ export default function BookmarkPage() {
     >
       <p>Ingesting...</p>
     </div>
+  );
+}
+
+export default function BookmarkPage() {
+  return (
+    <Suspense
+      fallback={
+        <div
+          style={{
+            display: "grid",
+            placeItems: "center",
+            height: "100vh",
+            fontFamily: "monospace",
+            textTransform: "uppercase",
+          }}
+        >
+          <p>Loading...</p>
+        </div>
+      }
+    >
+      <BookmarkHandler />
+    </Suspense>
   );
 }
 
